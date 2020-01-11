@@ -3,27 +3,17 @@
 const client = require('socket.io-client')
 const http = require('http');
 const Stream = require('stream').Transform;
-
+const localServer = require('./server');
 const { server, hostname, port, subdomain } = require('minimist')(process.argv.slice(2));
 const io = client(`http://${server}`);
 const fs = require('fs');
-console.log(`Forwarding ${subdomain}.${server} to ${hostname}:${port}`);
-io.emit('auth', {subdomain});
-io.on('authFail', () => {
-    console.log('authentication failed');
-    process.exit(1);
-});
 
-io.on('authSuccess', () => {
-    console.log('auth success!');
-});
 
-io.on('reconnect', () => {
-    console.log('reauthenticating...');
-    io.emit('auth', {subdomain});
-});
-
-io.on('page', (page) => {
+const requests = []
+const sendPage = (page) => {
+    page = {...page};
+    page.time = new Date();
+    requests.push(page);
     console.log(page.url, page.method);
     const options = {
         hostname,
@@ -48,4 +38,24 @@ io.on('page', (page) => {
     });
     req.write(page.body);
     req.end();
+};
+localServer(requests, sendPage);
+console.log(`Forwarding ${subdomain}.${server} to ${hostname}:${port}`);
+io.emit('auth', {subdomain});
+io.on('authFail', () => {
+    console.log('authentication failed');
+    process.exit(1);
+});
+
+io.on('authSuccess', () => {
+    console.log('auth success!');
+});
+
+io.on('reconnect', () => {
+    console.log('reauthenticating...');
+    io.emit('auth', {subdomain});
+});
+
+io.on('page', (page) => {
+   sendPage(page);
 })
