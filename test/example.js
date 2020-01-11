@@ -1,11 +1,20 @@
 const express  = require('express');
 const app = express();
-var http = require('http').createServer(app);
-const io =  require('socket.io')(http);
+const httpi = require('https');
+const httpimport = require('http')
+const socketio =  require('socket.io');
 const uuid = require('uuid/v4');
 const port = 3000;
 const fs = require('fs');
 const socketMap = {};
+const options = {
+key: fs.readFileSync("/etc/letsencrypt/live/freetunnel.hdimitrov.com-0001/privkey.pem"),
+  cert: fs.readFileSync("/etc/letsencrypt/live/freetunnel.hdimitrov.com-0001/cert.pem"),
+  chain: fs.readFileSync("/etc/letsencrypt/live/freetunnel.hdimitrov.com-0001/chain.pem"),
+};
+const http = httpi.createServer(options, app);
+const httpold = httpimport.createServer(app);
+const io = socketio(httpold)
 app.use(express.raw({type: '*/*'}));
 app.all('/*', (req, res) => {
     // console.log(req._parsedUrl._raw);
@@ -53,5 +62,5 @@ io.on('connection', (socket) => {
 
     //TODO: make it cleanup and not use existing names.
 })
-
-http.listen(port, () => console.log(`Example app listening on port ${port}!`))
+httpold.listen(80)
+http.listen(443, () => console.log(`Example app listening on port ${port}!`))
