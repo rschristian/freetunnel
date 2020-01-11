@@ -1,23 +1,30 @@
+#!/usr/bin/env node
+
 const client = require('socket.io-client')
 const http = require('http');
-const io = client('http://localhost:3000');
-const fs = require('fs');
 const Stream = require('stream').Transform;
-const hostname = 'localhost';
-const port = 3002;
-const subdomain = 'buckaroo';
 
+const { server, hostname, port, subdomain } = require('minimist')(process.argv.slice(2));
+const io = client(`http://${server}`);
+const fs = require('fs');
+console.log(`Forwarding ${subdomain}.${server} to ${hostname}:${port}`);
 io.emit('auth', {subdomain});
 io.on('authFail', () => {
     console.log('authentication failed');
     process.exit(1);
 });
+
+io.on('authSuccess', () => {
+    console.log('auth success!');
+});
+
 io.on('reconnect', () => {
+    console.log('reauthenticating...');
     io.emit('auth', {subdomain});
 });
 
 io.on('page', (page) => {
-    // console.log(page);
+    console.log(page.url, page.method);
     const options = {
         hostname,
         port,
@@ -35,8 +42,6 @@ io.on('page', (page) => {
           data.push(chunk);
         });
         res.on('end', () => {
-            console.log('ended');
-            console.log(data.readableLength);
             const body = data.read();
             io.emit(page.uuid, {body, status: res.statusCode, headers: res.headers});
         });
