@@ -5,8 +5,17 @@ const fs = require('fs');
 const Stream = require('stream').Transform;
 const hostname = 'localhost';
 const port = 3002;
+const subdomain = 'buckaroo';
 
-io.emit('fuck', {fuck: 'fuck'});
+io.emit('auth', {subdomain});
+io.on('authFail', () => {
+    console.log('authentication failed');
+    process.exit(1);
+});
+io.on('reconnect', () => {
+    io.emit('auth', {subdomain});
+});
+
 io.on('page', (page) => {
     // console.log(page);
     const options = {
