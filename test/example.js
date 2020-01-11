@@ -50,6 +50,7 @@ io.on('connection', (socket) => {
             socket.emit('authFail');
             return;
         }
+        socket.emit('authSuccess');
         socketMap[subdomain] = socket;
     });
     socket.on('disconnect', () => {
