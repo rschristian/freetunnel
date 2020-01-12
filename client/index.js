@@ -13,7 +13,6 @@ const requests = []
 const sendPage = (page) => {
     page = {...page};
     page.time = new Date();
-    requests.push(page);
     console.log(page.url, page.method);
     const options = {
         hostname,
@@ -25,6 +24,7 @@ const sendPage = (page) => {
     if (!Object.keys(page.body).length) {
         page.body = Buffer.from('');
     }
+    requests.push(page);
     const req = http.request(options, (res) => {
         // res.setEncoding('utf8');
         let data = new Stream();
@@ -33,6 +33,7 @@ const sendPage = (page) => {
         });
         res.on('end', () => {
             const body = data.read();
+            page.result = {data: body, status: res.statusCode, headers: res.headers};
             io.emit(page.uuid, {body, status: res.statusCode, headers: res.headers});
         });
     });
