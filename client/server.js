@@ -4,7 +4,7 @@ const call = async (requests, sendPage) => {
     const port = await portfinder.getPortPromise({port: 4040});
 
     app.set('view engine', 'hbs');
-    app.set('views', __dirname + '/views'));
+    app.set('views', __dirname + '/views');
     app.get('/', (req, res) => {
         res.render('index', {requests});
     });
