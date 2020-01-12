@@ -10,7 +10,7 @@
     <h1>Freetunnel</h1>
     <ul>
         {{#each requests}}
-            <li><a href="/view/{{@index}}">{{this.url}} - {{this.method}} - {{this.time}}</a></li>
+            <li><a href="/view/{{@index}}">{{this.url}} - {{this.method}} - {{this.time}}</a> <form method="post" action="/view/{{@index}}"><input type="submit" value="Resend"></form></li>
         {{/each}}
         <li></li>
     </ul>
