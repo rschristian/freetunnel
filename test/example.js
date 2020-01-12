@@ -36,6 +36,7 @@ app.all('/*', (req, res) => {
             }
             console.log(object.status);
             res.end();
+            socketMap[subdomain].removeAllListeners(generated);
         });
         socketMap[subdomain].emit('page', {url: req._parsedUrl._raw, headers: req.headers, body: req.body, method: req.method, uuid: generated});
     } else {
