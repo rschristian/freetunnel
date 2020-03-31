@@ -8,16 +8,17 @@ const port = 3000;
 const fs = require('fs');
 const socketMap = {};
 const options = {
-key: fs.readFileSync("/etc/letsencrypt/live/freetunnel.hdimitrov.com-0001/privkey.pem"),
-  cert: fs.readFileSync("/etc/letsencrypt/live/freetunnel.hdimitrov.com-0001/cert.pem"),
-  chain: fs.readFileSync("/etc/letsencrypt/live/freetunnel.hdimitrov.com-0001/chain.pem"),
+key: fs.readFileSync("/etc/letsencrypt/live/freetunnel.hdimitrov.com/privkey.pem"),
+  cert: fs.readFileSync("/etc/letsencrypt/live/freetunnel.hdimitrov.com/cert.pem"),
+  chain: fs.readFileSync("/etc/letsencrypt/live/freetunnel.hdimitrov.com/chain.pem"),
 };
 const http = httpi.createServer(options, app);
 const httpold = httpimport.createServer(app);
 const io = socketio(httpold)
 app.use(express.raw({type: '*/*'}));
 app.all('/*', (req, res) => {
-    // console.log(req._parsedUrl._raw);
+console.log(req.protocol);    
+// console.log(req._parsedUrl._raw);
     // console.log(req.headers);
     // console.log(req.body);
     if(req.subdomains.length === 0) {
@@ -38,7 +39,7 @@ app.all('/*', (req, res) => {
             res.end();
             socketMap[subdomain].removeAllListeners(generated);
         });
-        socketMap[subdomain].emit('page', {url: req._parsedUrl._raw, headers: req.headers, body: req.body, method: req.method, uuid: generated});
+        socketMap[subdomain].emit('page', {url: req._parsedUrl._raw, headers: req.headers, body: req.body, method: req.method, uuid: generated, protocol: req.protocol});
     } else {
         res.send('uwu our code moneys are working vewwy hawwd to fwix twis');
     }
