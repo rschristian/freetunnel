@@ -8,12 +8,12 @@ const { server, hostname, port, subdomain } = require('minimist')(process.argv.s
 const io = client(`http://${server}`);
 const fs = require('fs');
 
-
 const requests = []
 const sendPage = (page) => {
     page = {...page};
     page.time = new Date();
     console.log(page.url, page.method);
+    page.headers['X-Forwarded-Proto'] = page.protocol;
     const options = {
         hostname,
         port,
