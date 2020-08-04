@@ -8,9 +8,9 @@ const port = 3000;
 const fs = require('fs');
 const socketMap = {};
 const options = {
-key: fs.readFileSync("/etc/letsencrypt/live/freetunnel.hdimitrov.com/privkey.pem"),
-  cert: fs.readFileSync("/etc/letsencrypt/live/freetunnel.hdimitrov.com/cert.pem"),
-  chain: fs.readFileSync("/etc/letsencrypt/live/freetunnel.hdimitrov.com/chain.pem"),
+  key: fs.readFileSync("/etc/letsencrypt/live/freetunnel.hdimitrov.com/privkey.pem"),
+  // cert: fs.readFileSync("/etc/letsencrypt/live/freetunnel.hdimitrov.com/cert.pem"),
+  cert: fs.readFileSync("/etc/letsencrypt/live/freetunnel.hdimitrov.com/fullchain.pem"),
 };
 const http = httpi.createServer(options, app);
 const httpold = httpimport.createServer(app);
@@ -41,7 +41,7 @@ console.log(req.protocol);
         });
         socketMap[subdomain].emit('page', {url: req._parsedUrl._raw, headers: req.headers, body: req.body, method: req.method, uuid: generated, protocol: req.protocol});
     } else {
-        res.send('uwu our code moneys are working vewwy hawwd to fwix twis');
+        res.send('uwu our code moneys are working vewwwy hawwd to fwix twis');
     }
 });
 
