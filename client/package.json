@@ -16,8 +16,7 @@
   ],
   "scripts": {
     "start": "nodemon -e js,ejs --experimental-json-modules src/bin.js",
-    "build": "premove dist && microbundle -i src/bin.js --target node -f modern --no-sourcemap --compress",
-    "deploy": "git stage . && git commit -m 'Changes' && git push && npm publish"
+    "build": "premove dist && microbundle -i src/bin.js --target node -f modern --no-sourcemap --compress"
   },
   "dependencies": {
     "get-port": "^5.1.1",
