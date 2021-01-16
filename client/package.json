@@ -1,6 +1,6 @@
 {
-  "name": "freetunnel",
-  "version": "1.3.5",
+  "name": "@rschristian/freetunnel",
+  "version": "0.1.0",
   "esmodule": "dist/freetunnel.js",
   "bin": "dist/freetunnel.js",
   "type": "module",
