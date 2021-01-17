@@ -8,10 +8,10 @@ const { PORT = 3000 } = process.env;
 const server = http.createServer();
 const socketMap = {};
 
-polka()
-    .use(raw())
+polka({ server })
+    .use(raw({ type: '*/*' }))
     .all('/*', (req, res) => {
-        if (req.subdomains?.length === 0) {
+        if (req.subdomains.length === 0) {
             req.end('Subdomain length invalid');
         }
         const subdomain = req.subdomains[req.subdomains.length - 1];
