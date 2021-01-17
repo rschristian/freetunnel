@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "type": "module",
+  "license": "MIT",
   "author": "",
   "dependencies": {
     "@polka/parse": "^1.0.0-next.8",
