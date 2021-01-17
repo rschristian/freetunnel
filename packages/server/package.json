@@ -1,0 +1,13 @@
+{
+  "name": "@freetunnel/server",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "author": "",
+  "dependencies": {
+    "@polka/parse": "^1.0.0-next.8",
+    "polka": "^1.0.0-next.11",
+    "socket.io": "^2.3.0",
+    "uuid": "^3.3.3"
+  }
+}

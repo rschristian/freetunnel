@@ -1,1 +1,8 @@
+# JetBrains IDE files
 .idea/
+
+# Excluding Node Modules
+node_modules/
+
+# Excluding build files
+dist/
