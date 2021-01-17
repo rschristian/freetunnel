@@ -1,6 +1,6 @@
 {
   "name": "@rschristian/freetunnel",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "bin": "dist/freetunnel.esm.js",
   "type": "module",
   "license": "MIT",
