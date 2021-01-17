@@ -1,38 +1,33 @@
 import polka from 'polka';
-import { raw } from '@polka/parse';
-import socketIo from 'socket.io';
+import { Server } from 'socket.io';
 import uuid from 'uuid/v4.js';
 import http from 'http';
 
 const { PORT = 3000 } = process.env;
+
 const server = http.createServer();
 const socketMap = {};
 
 polka({ server })
-    .use(raw({ type: '*/*' }))
     .all('/*', (req, res) => {
-        if (req.subdomains.length === 0) {
-            req.end('Subdomain length invalid');
-        }
-        const subdomain = req.subdomains[req.subdomains.length - 1];
+        const subdomain = req.headers['x-forwarded-host'].split('.')[0];
         const generated = uuid();
         if (socketMap[subdomain]) {
             socketMap[subdomain].on(generated, (object) => {
-                res.set(object.headers);
-                res.status(object.status);
+                res.writeHead(object.status, object.headers);
                 if (object.body) {
                     res.write(object.body, 'binary');
                 }
                 res.end();
                 socketMap[subdomain].removeAllListeners(generated);
             });
-            socketMap[subdomain].emit('page', {
+            socketMap[subdomain].emit('resource', {
                 url: req._parsedUrl._raw,
                 headers: req.headers,
                 body: req.body,
                 method: req.method,
                 uuid: generated,
-                protocol: req.protocol,
+                protocol: req.headers['x-forward-proto'],
             });
         } else {
             res.end('Unknown Error');
@@ -43,7 +38,7 @@ polka({ server })
         console.log(`> Running on localhost:${PORT}`);
     });
 
-socketIo(server).on('connection', (socket) => {
+new Server(server).on('connection', (socket) => {
     socket.on('auth', ({ subdomain }) => {
         if (socketMap[subdomain]) {
             socket.emit('authFail');

@@ -16,10 +16,12 @@
       <% for (const [key, value] of Object.entries(request.headers)) { %>
               <li><b><%= key %></b> - <%= value %></li>
       <% } %>
-      <h3>Body</h3>
-      <pre>
-          <%= request.body %>
-      </pre>
+      <% if (request.body.toString()) { %>
+          <h3>Body</h3>
+          <pre>
+              <%= request.body %>
+          </pre>
+      <% } %>
       <h1>Response</h1>
       <h3><%= request.result.status %></h3>
       <h3>Headers</h3>

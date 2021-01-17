@@ -1,4 +1,4 @@
-import client from 'socket.io-client';
+import { io } from 'socket.io-client';
 import http from 'http';
 import { Transform } from 'stream';
 import kleur from 'kleur';
@@ -6,16 +6,15 @@ import kleur from 'kleur';
 import localServer from './server.js';
 
 export default function tunnel(opts) {
-    const io = client(`http://${opts.remote}`);
+    const socket = io(`https://${opts.subdomain}.${opts.remote}`);
 
     const requests = [];
     const sendPage = (resource) => {
         console.log(kleur.white(`    ${resource.method} ${resource.url}`));
 
         resource.time = new Date();
-        resource.headers['X-Forwarded-Proto'] = resource.protocol;
 
-        if (!Object.keys(resource.body).length) {
+        if (!resource.body || !Object.keys(resource.body).length > 0) {
             resource.body = Buffer.from('');
         }
 
@@ -35,7 +34,7 @@ export default function tunnel(opts) {
                 res.on('end', () => {
                     const body = data.read();
                     resource.result = { data: body, status: res.statusCode, headers: res.headers };
-                    io.emit(resource.uuid, { body, status: res.statusCode, headers: res.headers });
+                    socket.emit(resource.uuid, { body, status: res.statusCode, headers: res.headers });
                 });
             },
         );
@@ -46,16 +45,12 @@ export default function tunnel(opts) {
     localServer(requests, sendPage).catch(console.error);
     console.log(kleur.white().bold(`Forwarding ${opts.subdomain}.${opts.remote} to ${opts.host}:${opts.port}`));
 
-    io.emit('auth', { subdomain: opts.subdomain });
-    io.on('authSuccess', () => console.log(kleur.green('  Auth success!')));
-    io.on('authFail', () => {
+    socket.emit('auth', { subdomain: opts.subdomain });
+    socket.on('authSuccess', () => console.log(kleur.green('  Auth success!')));
+    socket.on('authFail', () => {
         console.log(kleur.red('  Authentication failed'));
         process.exit(1);
     });
-    io.on('reconnect', () => {
-        console.log(kleur.yellow('  Re-authenticating...'));
-        io.emit('auth', { subdomain: opts.subdomain });
-    });
 
-    io.on('page', (resource) => sendPage(resource));
+    socket.on('resource', (resource) => sendPage(resource));
 }
