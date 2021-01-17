@@ -11,9 +11,8 @@ const socketMap = {};
 polka()
     .use(raw())
     .all('/*', (req, res) => {
-        if (req.subdomains.length === 0) {
+        if (req.subdomains?.length === 0) {
             req.end('Subdomain length invalid');
-            return;
         }
         const subdomain = req.subdomains[req.subdomains.length - 1];
         const generated = uuid();
