@@ -17,7 +17,7 @@
     "README.md"
   ],
   "scripts": {
-    "start": "nodemon -e js,ejs --experimental-json-modules src/bin.js",
+    "start": "nodemon --watch src --experimental-json-modules src/bin.js",
     "build": "premove dist && microbundle -i src/bin.js --target node -f esm --no-sourcemap --compress"
   },
   "dependencies": {

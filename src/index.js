@@ -14,7 +14,7 @@ export default function tunnel(opts) {
 
         resource.time = new Date();
 
-        if (!resource.body || !Object.keys(resource.body).length > 0) {
+        if (!Object.keys(resource.body).length > 0) {
             resource.body = Buffer.from('');
         }
 

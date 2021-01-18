@@ -1,4 +1,5 @@
 import polka from 'polka';
+import { raw } from '@polka/parse';
 import { Server } from 'socket.io';
 import uuid from 'uuid/v4.js';
 import http from 'http';
@@ -9,6 +10,7 @@ const server = http.createServer();
 const socketMap = {};
 
 polka({ server })
+    .use(raw({ type: '/' }))
     .all('/*', (req, res) => {
         const subdomain = req.headers['x-forwarded-host'].split('.')[0];
         const generated = uuid();
@@ -27,7 +29,7 @@ polka({ server })
                 body: req.body,
                 method: req.method,
                 uuid: generated,
-                protocol: req.headers['x-forward-proto'],
+                protocol: 'https',
             });
         } else {
             res.end('Unknown Error');
