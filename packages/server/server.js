@@ -4,9 +4,7 @@ import { Server } from 'socket.io';
 import { uid } from 'uid';
 import http from 'http';
 
-const { PORT = 3000 } = process.env;
-const { FREETUNNEL_PASSWORD = uid() } = process.env;
-const { MAX_FREE_SUBDOMAINS = 5 } = process.env;
+const { FREETUNNEL_PORT = 3000, FREETUNNEL_PASSWORD = uid(), MAX_FREE_SUBDOMAINS = 5 } = process.env;
 
 console.log('====================================================');
 console.log(`Your Freetunnel server's password is ${FREETUNNEL_PASSWORD}`);
@@ -22,15 +20,15 @@ polka({ server })
         const subdomain = req.headers['x-forwarded-host'].split('.')[0];
         const generated = uid();
         if (socketMap[subdomain]) {
-            socketMap[subdomain].on(generated, (object) => {
+            socketMap[subdomain]['socket'].on(generated, (object) => {
                 res.writeHead(object.status, object.headers);
                 if (object.body) {
                     res.write(object.body, 'binary');
                 }
                 res.end();
-                socketMap[subdomain].removeAllListeners(generated);
+                socketMap[subdomain]['socket'].removeAllListeners(generated);
             });
-            socketMap[subdomain].emit('resource', {
+            socketMap[subdomain]['socket'].emit('resource', {
                 url: req._parsedUrl._raw,
                 headers: req.headers,
                 body: req.body,
@@ -42,33 +40,44 @@ polka({ server })
             res.end('Unknown Error');
         }
     })
-    .listen(PORT, (err) => {
+    .listen(FREETUNNEL_PORT, (err) => {
         if (err) throw err;
-        console.log(`> Running on localhost:${PORT}`);
+        console.log(`> Running on localhost:${FREETUNNEL_PORT}`);
     });
 
 new Server(server).on('connection', (socket) => {
     socket.on('auth', ({ subdomain, password }) => {
-        if (FREETUNNEL_PASSWORD !== password && currentFreeSubdomainCount === MAX_FREE_SUBDOMAINS) {
-            socket.emit('authFail', 'All un-authorized subdomains are already in use');
+        let freeSubdomain = false;
+        if (password && FREETUNNEL_PASSWORD !== password) {
+            socket.emit('authFail', 'provided password being incorrect');
             return;
-        } else if (FREETUNNEL_PASSWORD !== password) {
-            currentFreeSubdomainCount++;
+        } else {
+            if (currentFreeSubdomainCount === parseInt(MAX_FREE_SUBDOMAINS)) {
+                socket.emit('authFail', 'all unauthorized subdomains are already in use');
+                return;
+            } else {
+                currentFreeSubdomainCount++;
+                freeSubdomain = true;
+            }
         }
         if (socketMap[subdomain]) {
-            socket.emit('authFail', 'Subdomain already in use');
+            socket.emit('authFail', 'subdomain being already in use');
             return;
         }
         socket.emit('authSuccess');
-        socketMap[subdomain] = socket;
+        socketMap[subdomain] = {
+            socket,
+            freeSubdomain,
+        };
     });
 
     socket.on('disconnect', () => {
-        Object.entries(socketMap).forEach((entry) => {
-            if (entry[1] === socket) {
-                delete socketMap[entry[0]];
+        for (const [key, value] of Object.entries(socketMap)) {
+            if (value['socket'] === socket) {
+                if (value['freeSubdomain']) currentFreeSubdomainCount--;
+                delete socketMap[key];
             }
-        });
+        }
     });
 
     //TODO: make it cleanup and not use existing names.
