@@ -5,6 +5,9 @@ import kleur from 'kleur';
 
 import localServer from './server.js';
 
+/**
+ * @param {{ subdomain: string, remote: string, host: string, port: number, password: string}} opts
+ */
 export default function tunnel(opts) {
     const socket = io(`https://${opts.subdomain}.${opts.remote}`);
 
@@ -45,7 +48,7 @@ export default function tunnel(opts) {
     localServer(requests, sendPage).catch(console.error);
     console.log(kleur.white().bold(`Forwarding ${opts.subdomain}.${opts.remote} to ${opts.host}:${opts.port}`));
 
-    socket.emit('auth', { subdomain: opts.subdomain });
+    socket.emit('auth', { subdomain: opts.subdomain, password: opts.password });
     socket.on('authSuccess', () => console.log(kleur.green('  Auth success!')));
     socket.on('authFail', (reason) => {
         console.log(kleur.red(`  Authentication failed due to ${reason}`));
