@@ -18,9 +18,7 @@
       <% } %>
       <% if (request.body.toString()) { %>
           <h3>Body</h3>
-          <pre>
-              <%= request.body %>
-          </pre>
+          <pre><%= request.body %></pre>
       <% } %>
       <h1>Response</h1>
       <h3><%= request.result.status %></h3>
@@ -29,8 +27,6 @@
           <li><b><%= key %></b> - <%= value %></li>
       <% } %>
       <h3>Body</h3>
-      <pre>
-          <%= request.result.data %>
-      </pre>
+      <pre><%= request.result.data %></pre>
   </body>
 </html>

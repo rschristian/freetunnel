@@ -1,19 +1,26 @@
 import polka from 'polka';
 import { raw } from '@polka/parse';
 import { Server } from 'socket.io';
-import uuid from 'uuid/v4.js';
+import { uid } from 'uid';
 import http from 'http';
 
 const { PORT = 3000 } = process.env;
+const { FREETUNNEL_PASSWORD = uid() } = process.env;
+const { MAX_FREE_SUBDOMAINS = 5 } = process.env;
+
+console.log('====================================================');
+console.log(`Your Freetunnel server's password is ${FREETUNNEL_PASSWORD}`);
+console.log('====================================================');
 
 const server = http.createServer();
 const socketMap = {};
+let currentFreeSubdomainCount = 0;
 
 polka({ server })
     .use(raw({ type: '/' }))
     .all('/*', (req, res) => {
         const subdomain = req.headers['x-forwarded-host'].split('.')[0];
-        const generated = uuid();
+        const generated = uid();
         if (socketMap[subdomain]) {
             socketMap[subdomain].on(generated, (object) => {
                 res.writeHead(object.status, object.headers);
@@ -41,9 +48,13 @@ polka({ server })
     });
 
 new Server(server).on('connection', (socket) => {
-    socket.on('auth', ({ subdomain }) => {
+    socket.on('auth', ({ subdomain, password }) => {
+        if (FREETUNNEL_PASSWORD !== password && currentFreeSubdomainCount === MAX_FREE_SUBDOMAINS) {
+            socket.emit('authFail', 'All un-authorized subdomains are already in use');
+            return;
+        }
         if (socketMap[subdomain]) {
-            socket.emit('authFail');
+            socket.emit('authFail', 'Subdomain already in use');
             return;
         }
         socket.emit('authSuccess');

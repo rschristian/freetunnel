@@ -47,8 +47,8 @@ export default function tunnel(opts) {
 
     socket.emit('auth', { subdomain: opts.subdomain });
     socket.on('authSuccess', () => console.log(kleur.green('  Auth success!')));
-    socket.on('authFail', () => {
-        console.log(kleur.red('  Authentication failed'));
+    socket.on('authFail', (reason) => {
+        console.log(kleur.red(`  Authentication failed due to ${reason}`));
         process.exit(1);
     });
 
