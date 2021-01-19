@@ -51,7 +51,7 @@ new Server(server).on('connection', (socket) => {
         if (password && FREETUNNEL_PASSWORD !== password) {
             socket.emit('authFail', 'provided password being incorrect');
             return;
-        } else {
+        } else if (!password) {
             if (currentFreeSubdomainCount === parseInt(MAX_FREE_SUBDOMAINS)) {
                 socket.emit('authFail', 'all unauthorized subdomains being already in use');
                 return;
