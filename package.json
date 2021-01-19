@@ -1,6 +1,6 @@
 {
   "name": "@rschristian/freetunnel",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "bin": "dist/freetunnel.esm.js",
   "type": "module",
   "license": "MIT",
@@ -45,7 +45,10 @@
       "sourceType": "module",
       "ecmaVersion": 12
     },
-    "extends": ["eslint:recommended", "plugin:prettier/recommended"]
+    "extends": [
+      "eslint:recommended",
+      "plugin:prettier/recommended"
+    ]
   },
   "prettier": "prettier-config-rschristian"
 }
