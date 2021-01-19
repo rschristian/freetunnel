@@ -1,9 +1,11 @@
 import { io } from 'socket.io-client';
 import http from 'http';
 import { Transform } from 'stream';
-import kleur from 'kleur';
+import { cyan, green, red, white, yellow } from 'kleur/colors';
 
 import localServer from './server.js';
+
+const { FREETUNNEL_WEB_PORT = 4040 } = process.env;
 
 /**
  * @param {{ subdomain: string, remote: string, host: string, port: number, password: string}} opts
@@ -13,7 +15,7 @@ export default function tunnel(opts) {
 
     const requests = [];
     const sendPage = (resource) => {
-        console.log(kleur.white(`    ${resource.method} ${resource.url}`));
+        process.stdout.write(cyan(`• ${resource.method} ${resource.url}\n`));
 
         resource.time = new Date();
 
@@ -45,15 +47,34 @@ export default function tunnel(opts) {
         req.end();
     };
 
-    localServer(requests, sendPage).catch(console.error);
-    console.log(kleur.white().bold(`Forwarding ${opts.subdomain}.${opts.remote} to ${opts.host}:${opts.port}`));
+    localServer(requests, sendPage).listen(FREETUNNEL_WEB_PORT, (err) => {
+        if (err) throw err;
+        terminalWrite(opts, false);
+    });
 
     socket.emit('auth', { subdomain: opts.subdomain, password: opts.password });
-    socket.on('authSuccess', () => console.log(kleur.green('  Auth success!')));
+    socket.on('authSuccess', () => terminalWrite(opts, true));
     socket.on('authFail', (reason) => {
-        console.log(kleur.red(`  Authentication failed due to ${reason}`));
+        process.stdout.write(red(`Authentication failed due to ${reason}`));
         process.exit(1);
     });
 
     socket.on('resource', (resource) => sendPage(resource));
+}
+
+function terminalWrite(opts, authenticated) {
+    process.stdout.write('\x1B[H\x1B[2J');
+    process.stdout.write(yellow('FreeTunnel\n\n'));
+    // prettier-ignore
+    process.stdout.write(
+        (authenticated
+                ? green(`Status                 Authenticated\n`)
+                : red(`Status                 Authenticated\n`)
+        ) +
+        white(
+            `Web Interface          http://127.0.0.1:${FREETUNNEL_WEB_PORT}\n` +
+            `Forwarding             http://${opts.subdomain}.${opts.remote} -> http://${opts.host}:${opts.port}\n` +
+            `Forwarding             https://${opts.subdomain}.${opts.remote} -> http://${opts.host}:${opts.port}\n\n`
+        ),
+    );
 }

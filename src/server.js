@@ -1,13 +1,9 @@
 import polka from 'polka';
 import ejs from 'polka-ejs';
-import getPort from 'get-port';
 import path from 'path';
-import kleur from 'kleur';
 
-export default async (requests, sendPage) => {
-    const port = await getPort({ port: 4040 });
-
-    polka()
+export default (requests, sendPage) => {
+    return polka()
         .use(
             ejs({
                 views: path.join(process.cwd(), 'src/views'),
@@ -25,9 +21,5 @@ export default async (requests, sendPage) => {
         .post('/view/:id', (req, res) => {
             sendPage(requests[req.params.id]);
             res.redirect('/');
-        })
-        .listen(port, (err) => {
-            if (err) throw err;
-            console.log(kleur.cyan(`> Debug server @ localhost:${port}`));
         });
 };

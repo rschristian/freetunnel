@@ -21,7 +21,6 @@
     "build": "premove dist && microbundle -i src/bin.js --target node -f esm --no-sourcemap --compress"
   },
   "dependencies": {
-    "get-port": "^5.1.1",
     "kleur": "^4.1.3",
     "polka": "^1.0.0-next.11",
     "polka-ejs": "^1.0.0",
