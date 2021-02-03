@@ -43,6 +43,10 @@ export default function tunnel(opts) {
                 });
             },
         );
+        req.on('error', (e) => {
+            process.stdout.write(red(`Problem with request: ${e.message}\n`));
+            socket.emit(resource.uuid, { body: `Problem with request: ${e.message}\n`, status: 502 });
+        });
         req.write(resource.body);
         req.end();
     };
