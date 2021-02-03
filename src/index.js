@@ -8,7 +8,7 @@ import localServer from './server.js';
 const { FREETUNNEL_WEB_PORT = 4040 } = process.env;
 
 /**
- * @param {{ subdomain: string, remote: string, host: string, port: number, password: string}} opts
+ * @param {{ subdomain: string, remote: string, host: string, port: number, password: string }} opts
  */
 export default function tunnel(opts) {
     const socket = io(`https://${opts.subdomain}.${opts.remote}`);
@@ -72,8 +72,8 @@ function terminalWrite(opts, authenticated) {
     // prettier-ignore
     process.stdout.write(
         (authenticated
-                ? green(`Status                 Authenticated\n`)
-                : red(`Status                 Authenticated\n`)
+                ? green('Status                 Authenticated\n')
+                : red('Status                 Unauthenticated\n')
         ) +
         white(
             `Web Interface          http://127.0.0.1:${FREETUNNEL_WEB_PORT}\n` +

@@ -55,10 +55,9 @@ new Server(server).on('connection', (socket) => {
             if (currentFreeSubdomainCount === parseInt(MAX_FREE_SUBDOMAINS)) {
                 socket.emit('authFail', 'all unauthorized subdomains being already in use');
                 return;
-            } else {
-                currentFreeSubdomainCount++;
-                freeSubdomain = true;
             }
+            currentFreeSubdomainCount++;
+            freeSubdomain = true;
         }
         if (socketMap[subdomain]) {
             socket.emit('authFail', 'subdomain being already in use');
