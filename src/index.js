@@ -1,4 +1,4 @@
-import { io } from 'socket.io-client';
+import WebSocket from 'ws';
 import http from 'http';
 import { Transform } from 'stream';
 import { cyan, green, red, white, yellow } from 'kleur/colors';
@@ -11,7 +11,7 @@ const { FREETUNNEL_WEB_PORT = 4040 } = process.env;
  * @param {{ subdomain: string, remote: string, host: string, port: number, password: string }} opts
  */
 export default function tunnel(opts) {
-    const socket = io(`https://${opts.subdomain}.${opts.remote}`);
+    const socket = new WebSocket(`ws://${opts.subdomain}.${opts.remote}`);
 
     const requests = [];
     const sendPage = (resource) => {

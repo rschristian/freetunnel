@@ -1,6 +1,6 @@
 import polka from 'polka';
 import { raw } from '@polka/parse';
-import { Server } from 'socket.io';
+import WebSocket from 'ws';
 import { uid } from 'uid';
 import http from 'http';
 
@@ -45,7 +45,7 @@ polka({ server })
         console.log(`> Running on localhost:${FREETUNNEL_PORT}`);
     });
 
-new Server(server).on('connection', (socket) => {
+new WebSocket.Server({ server }).on('connection', (socket) => {
     socket.on('auth', ({ subdomain, password }) => {
         let freeSubdomain = false;
         if (password && FREETUNNEL_PASSWORD !== password) {
