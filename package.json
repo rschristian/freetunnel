@@ -17,7 +17,8 @@
     "README.md"
   ],
   "scripts": {
-    "start": "nodemon --watch src --experimental-json-modules src/bin.js",
+    "dev": "nodemon --watch src --experimental-json-modules --experimental-specifier-resolution=node src/bin.js",
+    "start": "node dist/freetunnel.esm.js",
     "build": "premove dist && microbundle -i src/bin.js --target node -f esm --no-sourcemap --compress"
   },
   "dependencies": {
@@ -29,8 +30,7 @@
   },
   "devDependencies": {
     "eslint": "^7.18.0",
-    "eslint-config-prettier": "^7.1.0",
-    "eslint-plugin-prettier": "^3.3.1",
+    "eslint-config-rschristian": "^0.1.2",
     "microbundle": "^0.13.0",
     "nodemon": "^2.0.2",
     "premove": "^3.0.1",
@@ -45,10 +45,7 @@
       "sourceType": "module",
       "ecmaVersion": 12
     },
-    "extends": [
-      "eslint:recommended",
-      "plugin:prettier/recommended"
-    ]
+    "extends": "rschristian"
   },
   "prettier": "prettier-config-rschristian"
 }

@@ -7,7 +7,7 @@ import http from 'http';
 const { FREETUNNEL_PORT = 3000, FREETUNNEL_PASSWORD = uid(), MAX_FREE_SUBDOMAINS = 5 } = process.env;
 
 console.log('====================================================');
-console.log(`Your Freetunnel server's password is ${FREETUNNEL_PASSWORD}`);
+console.log(`Your Freetunnel server's password is "${FREETUNNEL_PASSWORD}"`);
 console.log('====================================================');
 
 const server = http.createServer();
