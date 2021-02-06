@@ -20,21 +20,29 @@ polka({ server })
         const subdomain = req.headers['x-forwarded-host'].split('.')[0];
         const generated = uid();
         if (socketMap[subdomain]) {
-            socketMap[subdomain]['socket'].on(generated, (object) => {
-                res.writeHead(object.status, object.headers);
-                if (object.body) {
-                    res.write(object.body, 'binary');
+            socketMap[subdomain]['socket'].on('message', (message) => {
+                const socketMessage = JSON.parse(message);
+                const resource = message.body;
+
+                if (socketMessage.event === generated) {
+                    res.writeHead(resource.status, resource.headers);
+                    if (resource.body) {
+                        res.write(resource.body, 'binary');
+                    }
+                    res.end();
+                    socketMap[subdomain]['socket'].removeAllListeners(generated);
                 }
-                res.end();
-                socketMap[subdomain]['socket'].removeAllListeners(generated);
             });
-            socketMap[subdomain]['socket'].emit('resource', {
-                url: req._parsedUrl._raw,
-                headers: req.headers,
-                body: req.body,
-                method: req.method,
-                uuid: generated,
-                protocol: 'https',
+            sendMessage(socketMap[subdomain]['socket'], {
+                event: 'resource',
+                body: {
+                    url: req._parsedUrl._raw,
+                    headers: req.headers,
+                    body: req.body,
+                    method: req.method,
+                    uuid: generated,
+                    protocol: 'https',
+                },
             });
         } else {
             res.end('Unknown Error');
@@ -46,31 +54,42 @@ polka({ server })
     });
 
 new WebSocket.Server({ server }).on('connection', (socket) => {
-    socket.on('auth', ({ subdomain, password }) => {
-        let freeSubdomain = false;
-        if (password && FREETUNNEL_PASSWORD !== password) {
-            socket.emit('authFail', 'provided password being incorrect');
-            return;
-        } else if (!password) {
-            if (currentFreeSubdomainCount === parseInt(MAX_FREE_SUBDOMAINS)) {
-                socket.emit('authFail', 'all unauthorized subdomains being already in use');
+    socket.on('message', (message) => {
+        const socketMessage = JSON.parse(message);
+
+        if (socketMessage.event === 'auth') {
+            const { password, subdomain } = socketMessage.body;
+
+            let freeSubdomain = false;
+            if (password && FREETUNNEL_PASSWORD !== password) {
+                sendMessage(socket, { event: 'authFailure', message: 'provided password being incorrect' });
+                return;
+            } else if (!password) {
+                if (currentFreeSubdomainCount === parseInt(MAX_FREE_SUBDOMAINS)) {
+                    sendMessage(socket, {
+                        event: 'authFailure',
+                        message: 'all unauthorized subdomains being already in use',
+                    });
+                    return;
+                }
+                currentFreeSubdomainCount++;
+                freeSubdomain = true;
+            }
+            if (socketMap[subdomain]) {
+                sendMessage(socket, { event: 'authFailure', message: 'subdomain being already in use' });
                 return;
             }
-            currentFreeSubdomainCount++;
-            freeSubdomain = true;
+            sendMessage(socket, { event: 'authSuccess' });
+            socketMap[subdomain] = {
+                socket,
+                freeSubdomain,
+            };
+        } else {
+            sendMessage(socket, { event: 'error', message: 'Unknown event' });
         }
-        if (socketMap[subdomain]) {
-            socket.emit('authFail', 'subdomain being already in use');
-            return;
-        }
-        socket.emit('authSuccess');
-        socketMap[subdomain] = {
-            socket,
-            freeSubdomain,
-        };
     });
 
-    socket.on('disconnect', () => {
+    socket.on('close', () => {
         for (const [key, value] of Object.entries(socketMap)) {
             if (value['socket'] === socket) {
                 if (value['freeSubdomain']) currentFreeSubdomainCount--;
@@ -78,6 +97,8 @@ new WebSocket.Server({ server }).on('connection', (socket) => {
             }
         }
     });
-
-    //TODO: make it cleanup and not use existing names.
 });
+
+function sendMessage(socket, message) {
+    socket.send(JSON.stringify(message));
+}
