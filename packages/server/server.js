@@ -24,19 +24,20 @@ polka({ server })
         const subdomain = req.headers['x-forwarded-host'].split('.')[0];
         const generated = uid();
         if (socketMap[subdomain]) {
-            socketMap[subdomain]['socket'].on('message', (message) => {
-                const socketMessage = JSON.parse(message);
-                const resource = message.body;
+            const responder = ({ data }) => {
+                const socketMessage = JSON.parse(data);
+                const resource = socketMessage.body;
 
                 if (socketMessage.event === generated) {
                     res.writeHead(resource.status, resource.headers);
                     if (resource.body) {
-                        res.write(resource.body, 'binary');
+                        res.write(Buffer.from(resource.body), 'binary');
                     }
                     res.end();
-                    socketMap[subdomain]['socket'].removeAllListeners(generated);
+                    socketMap[subdomain]['socket'].removeEventListener('message', responder);
                 }
-            });
+            };
+            socketMap[subdomain]['socket'].addEventListener('message', responder);
             sendMessage(socketMap[subdomain]['socket'], {
                 event: 'resource',
                 body: {
