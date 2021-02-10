@@ -4,7 +4,11 @@ import WebSocket from 'ws';
 import { uid } from 'uid';
 import http from 'http';
 
-const { FREETUNNEL_PORT = 3000, FREETUNNEL_PASSWORD = uid(), MAX_FREE_SUBDOMAINS = 5 } = process.env;
+const {
+    /** @type {(number | string)} */ FREETUNNEL_PORT = 3000,
+    /** @type {(number | string)} */ FREETUNNEL_PASSWORD = uid(),
+    /** @type {(number | string)} */ MAX_FREE_SUBDOMAINS = 5,
+} = process.env;
 
 console.log('====================================================');
 console.log(`Your Freetunnel server's password is "${FREETUNNEL_PASSWORD}"`);
@@ -65,7 +69,7 @@ new WebSocket.Server({ server }).on('connection', (socket) => {
                 sendMessage(socket, { event: 'authFailure', message: 'provided password being incorrect' });
                 return;
             } else if (!password) {
-                if (currentFreeSubdomainCount === parseInt(MAX_FREE_SUBDOMAINS)) {
+                if (currentFreeSubdomainCount === parseInt(MAX_FREE_SUBDOMAINS, 10)) {
                     sendMessage(socket, {
                         event: 'authFailure',
                         message: 'all unauthorized subdomains being already in use',
