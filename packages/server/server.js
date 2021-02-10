@@ -88,8 +88,6 @@ new WebSocket.Server({ server }).on('connection', (socket) => {
                 socket,
                 freeSubdomain,
             };
-        } else {
-            sendMessage(socket, { event: 'error', message: 'Unknown event' });
         }
     });
 
