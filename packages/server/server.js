@@ -62,7 +62,8 @@ new WebSocket.Server({ server }).on('connection', (socket, req) => {
     if (req.headers.origin) {
         const subdomain = getSubdomain(req);
         if (socketMap[subdomain]) {
-            socketMap[subdomain].browserSocket = socket;
+            if (!socketMap[subdomain].browserSocket) socketMap[subdomain].browserSocket = [];
+            socketMap[subdomain].browserSocket.push(socket);
             sendMessage(socketMap[subdomain].clientSocket, {
                 event: 'hmr',
                 body: {
@@ -106,7 +107,9 @@ new WebSocket.Server({ server }).on('connection', (socket, req) => {
                 break;
             }
             case 'hmrUpdate': {
-                socketMap[socketMessage.body.subdomain].browserSocket.send(socketMessage.body.message);
+                for (const socket of socketMap[socketMessage.body.subdomain].browserSocket) {
+                    socket.send(socketMessage.body.message);
+                }
                 break;
             }
         }
