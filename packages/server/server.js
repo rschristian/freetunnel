@@ -106,7 +106,7 @@ new WebSocket.Server({ server }).on('connection', (socket, req) => {
                 break;
             }
             case 'hmrUpdate': {
-                sendMessage(socketMap[socketMessage.body.subdomain].browserSocket, socketMessage.body.message);
+                socketMap[socketMessage.body.subdomain].browserSocket.send(socketMessage.body.message);
                 break;
             }
         }
