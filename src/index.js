@@ -11,7 +11,7 @@ const { FREETUNNEL_WEB_PORT = 4040 } = process.env;
  * @param {{ subdomain: string, remote: string, host: string, port: number, password: string }} opts
  */
 export default function tunnel(opts) {
-    const socket = new WebSocket(`ws://${opts.subdomain}.${opts.remote}`);
+    const ws = new WebSocket(`wss://${opts.subdomain}.${opts.remote}`);
 
     const requests = [];
     const sendPage = (resource) => {
@@ -39,13 +39,19 @@ export default function tunnel(opts) {
                 res.on('end', () => {
                     const body = data.read();
                     resource.result = { data: body, status: res.statusCode, headers: res.headers };
-                    socket.emit(resource.uuid, { body, status: res.statusCode, headers: res.headers });
+                    sendMessage(ws, {
+                        event: resource.uuid,
+                        body: { body, status: res.statusCode, headers: res.headers },
+                    });
                 });
             },
         );
         req.on('error', (e) => {
             process.stdout.write(red(`Problem with request: ${e.message}\n`));
-            socket.emit(resource.uuid, { body: `Problem with request: ${e.message}\n`, status: 502 });
+            sendMessage(ws, {
+                event: resource.uuid,
+                body: { body: `Problem with request: ${e.message}\n`, status: 502 },
+            });
         });
         req.write(resource.body);
         req.end();
@@ -56,14 +62,33 @@ export default function tunnel(opts) {
         terminalWrite(opts, false);
     });
 
-    socket.emit('auth', { subdomain: opts.subdomain, password: opts.password });
-    socket.on('authSuccess', () => terminalWrite(opts, true));
-    socket.on('authFail', (reason) => {
-        process.stdout.write(red(`Authentication failed due to ${reason}`));
-        process.exit(1);
-    });
+    sendMessage(ws, { event: 'auth', body: { subdomain: opts.subdomain, password: opts.password } });
+    ws.on('message', (message) => {
+        const socketMessage = JSON.parse(message);
 
-    socket.on('resource', (resource) => sendPage(resource));
+        switch (socketMessage.event) {
+            case 'authSuccess':
+                terminalWrite(opts, true);
+                break;
+            case 'authFailure':
+                process.stdout.write(red(`Authentication failed due to ${socketMessage.message}`));
+                process.exit(1);
+                break;
+            case 'resource':
+                sendPage(socketMessage.body);
+                break;
+            case 'hmr':
+                new WebSocket(`ws://${opts.host}:${opts.port}${socketMessage.body.url}`, socketMessage.body.headers)
+                    .on('message', (message) =>
+                        sendMessage(ws, { event: 'hmrUpdate', body: { subdomain: opts.subdomain, message } }),
+                    )
+                    .on('error', (error) => console.log(error));
+                break;
+            case 'error':
+                process.stdout.write(red(`Unknown error: ${socketMessage.message}`));
+                break;
+        }
+    });
 }
 
 function terminalWrite(opts, authenticated) {
@@ -81,4 +106,20 @@ function terminalWrite(opts, authenticated) {
             `Forwarding             https://${opts.subdomain}.${opts.remote} -> http://${opts.host}:${opts.port}\n\n`
         ),
     );
+}
+
+function sendMessage(ws, message) {
+    waitForSocketConnection(ws, () => {
+        ws.send(JSON.stringify(message));
+    });
+}
+
+function waitForSocketConnection(ws, callback) {
+    setTimeout(() => {
+        if (ws.readyState === 1) {
+            if (callback) callback();
+        } else {
+            waitForSocketConnection(ws, callback);
+        }
+    }, 5);
 }
