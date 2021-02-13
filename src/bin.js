@@ -13,7 +13,7 @@ sade('freetunnel', true)
     .option('-s, --subdomain', 'Subdomain to use on remote', 'foo')
     .option('-r, --remote', 'Remote server to run on', 'freetunnel.ryanchristian.dev')
     .option('-H, --host', 'Hostname to bind', 'localhost')
-    .option('-p, --port', 'Port to bind', 5000)
+    .option('-p, --port', 'Port to bind', 3000)
     .option('-P, --password', 'Password to use for the remote', undefined)
     .action(tunnel)
     .parse(process.argv);
