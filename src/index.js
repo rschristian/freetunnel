@@ -33,7 +33,6 @@ export default function tunnel(opts) {
                 headers: resource.headers,
             },
             (res) => {
-                // res.setEncoding('utf8');
                 let data = new Transform();
                 res.on('data', (chunk) => data.push(chunk));
                 res.on('end', () => {
@@ -78,11 +77,12 @@ export default function tunnel(opts) {
                 sendPage(socketMessage.body);
                 break;
             case 'hmr':
-                new WebSocket(`ws://${opts.host}:${opts.port}${socketMessage.body.url}`, socketMessage.body.headers)
-                    .on('message', (message) =>
-                        sendMessage(ws, { event: 'hmrUpdate', body: { subdomain: opts.subdomain, message } }),
-                    )
-                    .on('error', (error) => console.log(error));
+                new WebSocket(
+                    `ws://${opts.host}:${opts.port}${socketMessage.body.url}`,
+                    socketMessage.body.headers,
+                ).on('message', (message) =>
+                    sendMessage(ws, { event: 'hmrUpdate', body: { subdomain: opts.subdomain, message } }),
+                );
                 break;
             case 'error':
                 process.stdout.write(red(`Unknown error: ${socketMessage.message}`));
