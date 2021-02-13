@@ -118,7 +118,7 @@ new WebSocket.Server({ server }).on('connection', (socket, req) => {
     socket.on('close', () => {
         for (const [key, value] of Object.entries(socketMap)) {
             if (req.headers.origin) {
-                const index = value.browserSocket.indexOf(socket);
+                const index = value.browserSocket?.indexOf(socket);
                 if (index > -1) value.browserSocket.splice(index, 1);
                 break;
             } else if (value.clientSocket === socket) {
