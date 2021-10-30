@@ -5,10 +5,15 @@
   "type": "module",
   "license": "MIT",
   "author": "Hristo Dimitrov",
-  "description": "",
-  "homepage": "https://gitlab.com/hdimitrov/freetunnel",
-  "repository": "https://gitlab.com/hdimitrov/freetunnel",
-  "keywords": [],
+  "description": "Create secure introspectable tunnels to your local device",
+  "repository": "https://github.com/rschristian/freetunnel",
+  "keywords": [
+    "tunnel",
+    "webhook",
+    "secure",
+    "URL",
+    "access"
+  ],
   "files": [
     "dist",
     "src/views",
