@@ -82,7 +82,10 @@ new WebSocket.Server({ server }).on('connection', (socket, req) => {
 
                 let freeSubdomain = false;
                 if (password && FREETUNNEL_PASSWORD !== password) {
-                    sendMessage(socket, { event: 'authFailure', message: 'provided password being incorrect' });
+                    sendMessage(socket, {
+                        event: 'authFailure',
+                        message: 'provided password being incorrect',
+                    });
                     return;
                 } else if (!password) {
                     if (currentFreeSubdomainCount === parseInt(MAX_FREE_SUBDOMAINS, 10)) {
@@ -96,7 +99,10 @@ new WebSocket.Server({ server }).on('connection', (socket, req) => {
                     freeSubdomain = true;
                 }
                 if (socketMap[subdomain]) {
-                    sendMessage(socket, { event: 'authFailure', message: 'subdomain being already in use' });
+                    sendMessage(socket, {
+                        event: 'authFailure',
+                        message: 'subdomain being already in use',
+                    });
                     return;
                 }
                 sendMessage(socket, { event: 'authSuccess' });

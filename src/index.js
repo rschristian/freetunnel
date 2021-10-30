@@ -61,7 +61,10 @@ export default function tunnel(opts) {
         terminalWrite(opts, false);
     });
 
-    sendMessage(ws, { event: 'auth', body: { subdomain: opts.subdomain, password: opts.password } });
+    sendMessage(ws, {
+        event: 'auth',
+        body: { subdomain: opts.subdomain, password: opts.password },
+    });
     ws.on('message', (message) => {
         const socketMessage = JSON.parse(message);
 
@@ -81,7 +84,10 @@ export default function tunnel(opts) {
                     `ws://${opts.host}:${opts.port}${socketMessage.body.url}`,
                     socketMessage.body.headers,
                 ).on('message', (message) =>
-                    sendMessage(ws, { event: 'hmrUpdate', body: { subdomain: opts.subdomain, message } }),
+                    sendMessage(ws, {
+                        event: 'hmrUpdate',
+                        body: { subdomain: opts.subdomain, message },
+                    }),
                 );
                 break;
             case 'error':
