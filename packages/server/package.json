@@ -6,7 +6,7 @@
   "license": "MIT",
   "author": "",
   "dependencies": {
-    "@polka/parse": "^1.0.0-next.8",
+    "@polka/parse": "^1.0.0-next.21",
     "polka": "^1.0.0-next.11",
     "uid": "^2.0.0",
     "ws": "^7.4.3"

@@ -41,12 +41,11 @@ polka({ server })
             sendMessage(socketMap[subdomain].clientSocket, {
                 event: 'resource',
                 body: {
-                    url: req._parsedUrl._raw,
+                    url: req._parsedUrl.raw,
                     headers: req.headers,
                     body: req.body,
                     method: req.method,
                     uuid: generated,
-                    protocol: 'https',
                 },
             });
         } else {
