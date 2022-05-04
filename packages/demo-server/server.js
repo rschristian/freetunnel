@@ -33,6 +33,7 @@ polka({ server })
             }),
         );
         res.writeHead(418, { foo: 'bar' });
+        res.body = 'foobarbaz';
         res.end('Lorem Ipsum');
     })
     .listen(PORT, (err) => {
