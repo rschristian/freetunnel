@@ -11,7 +11,7 @@
 ---
 
 <p align="center">
-  <strong>Overview</strong>
+  <strong>Overview</strong> ✯
   <a href="#usage">Usage</a> ✯
   <a href="#setup">Setup Your Own Freetunnel Server</a> ✯
   <a href="#options">All CLI Options</a>
@@ -30,17 +30,17 @@ Freetunnel comes in two parts: a CLI tool and a server. You use the CLI tool to 
 To begin using Freetunnel immediately, run:
 
 ```bash
-npx @rschristian/freetunnel
+$ npx @rschristian/freetunnel
 ```
 
 This will connnect `http://localhost:3000` to `https://foo.freetunnel.ryanchristian.dev`.
 
-## Setup Your Own Freetunnel Server
+## Setup
 
 If you'd like to run your own instance of Freetunnel, maybe because you dislike the domain or the free slots are full (I only provide 5 slots for free on a first-come first-served basis), you're easily able to with a Docker container I've set up. Simply run the following to start up your own instance:
 
 ```bash
-docker run -d \
+$ docker run -d \
   -p 3000:3000 \
   ryanchristian4427/freetunnel
 ```
@@ -58,7 +58,7 @@ FREETUNNEL_MAX_FREE_SUBDOMAINS (default 5)
 To configure these with Docker, use the following:
 
 ```bash
-docker run -d \
+$ docker run -d \
   -p 3000:3000 \
   -e FREETUNNEL_PORT=3000 \
   -e FREETUNNEL_PASSWORD=my_password \
@@ -77,6 +77,7 @@ Options
     -r, --remote       Remote server to run on  (default freetunnel.ryanchristian.dev)
     -H, --host         Hostname to bind  (default localhost)
     -p, --port         Port to bind  (default 3000)
+    -w, --web-port     Web Port to bind for introspection (default 4040)
     -P, --password     Password to use for the remote
     -v, --version      Displays current version
     -h, --help         Displays this message
