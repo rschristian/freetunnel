@@ -6,14 +6,19 @@ import pkg from '../package.json';
 
 sade('freetunnel', true)
     .version(pkg.version)
-    .describe('Secure introspectable tunnels to localhost. Webhook development and debugging tool.')
-    .example('-s rschristian -r freetunnel.hdimitrov.com')
-    .example('-s foobar -r tunnel.lukewarlow.uk -p 6000')
-    .example('-s api -P password123')
+    .describe('Create secure introspectable tunnels to your local device with a single command')
     .option('-s, --subdomain', 'Subdomain to use on remote', 'foo')
     .option('-r, --remote', 'Remote server to run on', 'freetunnel.ryanchristian.dev')
     .option('-H, --host', 'Hostname to bind', 'localhost')
     .option('-p, --port', 'Port to bind', 3000)
+    .option('-w, --web-port', 'Web Port to bind for introspection', 4040)
     .option('-P, --password', 'Password to use for the remote', undefined)
-    .action(tunnel)
-    .parse(process.argv);
+    .example('-s rschristian -r freetunnel.hdimitrov.com')
+    .example('-s foobar -r tunnel.lukewarlow.uk -p 6000')
+    .example('-s api -P password123')
+    .action((opts) => {
+        tunnel(opts);
+    })
+    .parse(process.argv, {
+        unknown: (arg) => `Unknown option: ${arg}`,
+    });

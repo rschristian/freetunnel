@@ -1,30 +1,27 @@
-import WebSocket from 'ws';
-import http from 'http';
-import { Transform } from 'stream';
+import { request } from 'node:http';
+import { Transform } from 'node:stream';
+
 import { cyan, green, red, white, yellow } from 'kleur/colors';
+import WebSocket from 'ws';
 
 import localServer from './server.js';
 
-const { FREETUNNEL_WEB_PORT = 4040 } = process.env;
-
 /**
- * @param {{ subdomain: string, remote: string, host: string, port: number, password: string }} opts
+ * @param {Options} opts
  */
 export default function tunnel(opts) {
     const ws = new WebSocket(`wss://${opts.subdomain}.${opts.remote}`);
 
     const requests = [];
+
+    /** @param {FreetunnelResponse} resource **/
     const sendPage = (resource) => {
         process.stdout.write(cyan(`• ${resource.method} ${resource.url}\n`));
 
         resource.time = new Date();
 
-        if (!Object.keys(resource.body).length > 0) {
-            resource.body = Buffer.from('');
-        }
-
         requests.push(resource);
-        const req = http.request(
+        const req = request(
             {
                 host: opts.host,
                 port: opts.port,
@@ -52,11 +49,13 @@ export default function tunnel(opts) {
                 body: { body: `Problem with request: ${e.message}\n`, status: 502 },
             });
         });
-        req.write(resource.body);
+        if (Object.keys(resource.body).length > 0) {
+            req.write(resource.body);
+        }
         req.end();
     };
 
-    localServer(requests, sendPage).listen(FREETUNNEL_WEB_PORT, (err) => {
+    localServer(requests, sendPage).listen(opts.webPort, (err) => {
         if (err) throw err;
         terminalWrite(opts, false);
     });
@@ -66,7 +65,7 @@ export default function tunnel(opts) {
         body: { subdomain: opts.subdomain, password: opts.password },
     });
     ws.on('message', (message) => {
-        const socketMessage = JSON.parse(message);
+        const socketMessage = JSON.parse(message.toString());
 
         switch (socketMessage.event) {
             case 'authSuccess':
@@ -75,7 +74,6 @@ export default function tunnel(opts) {
             case 'authFailure':
                 process.stdout.write(red(`Authentication failed due to ${socketMessage.message}`));
                 process.exit(1);
-                break;
             case 'resource':
                 sendPage(socketMessage.body);
                 break;
@@ -97,6 +95,11 @@ export default function tunnel(opts) {
     });
 }
 
+/**
+ * @param {Options} opts
+ * @param {boolean} authenticated
+ * @returns {void}
+ */
 function terminalWrite(opts, authenticated) {
     process.stdout.write('\x1B[H\x1B[2J');
     process.stdout.write(yellow('FreeTunnel\n\n'));
@@ -107,7 +110,7 @@ function terminalWrite(opts, authenticated) {
                 : red('Status                 Unauthenticated\n')
         ) +
         white(
-            `Web Interface          http://127.0.0.1:${FREETUNNEL_WEB_PORT}\n` +
+            `Web Interface          http://127.0.0.1:${opts.webPort}\n` +
             `Forwarding             http://${opts.subdomain}.${opts.remote} -> http://${opts.host}:${opts.port}\n` +
             `Forwarding             https://${opts.subdomain}.${opts.remote} -> http://${opts.host}:${opts.port}\n\n`
         ),
