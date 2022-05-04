@@ -22,7 +22,7 @@
   ],
   "scripts": {
     "serve:dev": "chokidar 'src/*.js' 'src/views/*.ejs' --initial -c 'yarn serve:prod'",
-    "serve:prod": "node --experimental-json-modules src/bin.js",
+    "serve:prod": "node src/bin.js",
     "format": "prettier --write --ignore-path .gitignore ."
   },
   "dependencies": {

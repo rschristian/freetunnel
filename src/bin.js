@@ -1,8 +1,12 @@
 #!/usr/bin/env node
+import { promises as fs } from 'fs';
+
 import sade from 'sade';
 
 import tunnel from './index.js';
-import pkg from '../package.json';
+import validateOptions from './validateOptions.js';
+
+const pkg = JSON.parse(await fs.readFile('./package.json', 'utf-8'));
 
 sade('freetunnel', true)
     .version(pkg.version)
@@ -17,6 +21,7 @@ sade('freetunnel', true)
     .example('-s foobar -r tunnel.lukewarlow.uk -p 6000')
     .example('-s api -P password123')
     .action((opts) => {
+        opts = validateOptions(opts);
         tunnel(opts);
     })
     .parse(process.argv, {
