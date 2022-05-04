@@ -1,20 +1,28 @@
+import { createServer, IncomingHttpHeaders } from 'node:http';
+
 import polka from 'polka';
 import { raw } from '@polka/parse';
 import WebSocket from 'ws';
 import { uid } from 'uid';
-import http from 'http';
 
-const {
-    /** @type {(number | string)} */ FREETUNNEL_PORT = 3000,
-    /** @type {(number | string)} */ FREETUNNEL_PASSWORD = uid(),
-    /** @type {(number | string)} */ MAX_FREE_SUBDOMAINS = 5,
-} = process.env;
+/**
+ * @param {string} envVar
+ * @param {number} defaultValue
+ * @returns {number}
+ */
+function parseIntEnvVar(envVar, defaultValue) {
+    const parsed = parseInt(process.env[envVar], 10);
 
-console.log('====================================================');
-console.log(`Your Freetunnel server's password is "${FREETUNNEL_PASSWORD}"`);
-console.log('====================================================');
+    return process.env[envVar] && !isNaN(parsed) ? parsed : defaultValue;
+}
 
-const server = http.createServer();
+const FREETUNNEL_PORT = parseIntEnvVar('FREETUNNEL_PORT', 3000);
+
+const FREETUNNEL_PASSWORD = process.env.FREETUNNEL_PASSWORD;
+
+const FREETUNNEL_MAX_FREE_SUBDOMAINS = parseIntEnvVar('FREETUNNEL_MAX_FREE_SUBDOMAINS', 5);
+
+const server = createServer();
 const socketMap = {};
 let currentFreeSubdomainCount = 0;
 
@@ -59,7 +67,7 @@ polka({ server })
 
 new WebSocket.Server({ server }).on('connection', (socket, req) => {
     if (req.headers.origin) {
-        const subdomain = getSubdomain(req);
+        const subdomain = getSubdomain(req.headers);
         if (socketMap[subdomain]) {
             if (!socketMap[subdomain].browserSocket) socketMap[subdomain].browserSocket = [];
             socketMap[subdomain].browserSocket.push(socket);
@@ -73,7 +81,7 @@ new WebSocket.Server({ server }).on('connection', (socket, req) => {
         }
     }
     socket.on('message', (message) => {
-        const socketMessage = JSON.parse(message);
+        const socketMessage = JSON.parse(message.toString());
 
         switch (socketMessage.event) {
             case 'auth': {
@@ -87,7 +95,7 @@ new WebSocket.Server({ server }).on('connection', (socket, req) => {
                     });
                     return;
                 } else if (!password) {
-                    if (currentFreeSubdomainCount === parseInt(MAX_FREE_SUBDOMAINS, 10)) {
+                    if (currentFreeSubdomainCount === FREETUNNEL_MAX_FREE_SUBDOMAINS) {
                         sendMessage(socket, {
                             event: 'authFailure',
                             message: 'all unauthorized subdomains being already in use',
@@ -136,11 +144,12 @@ new WebSocket.Server({ server }).on('connection', (socket, req) => {
 });
 
 /**
- * @param {Request} req
+ * @param {IncomingHttpHeaders} headers
  * @returns {string}
  */
-function getSubdomain(req) {
-    return req.headers['x-forwarded-host'].split('.')[0];
+function getSubdomain(headers) {
+    // @ts-ignore
+    return headers['x-forwarded-host'].split('.')[0];
 }
 
 function sendMessage(socket, message) {
