@@ -1,4 +1,4 @@
-import { createServer, IncomingHttpHeaders } from 'node:http';
+import { createServer } from 'node:http';
 
 import polka from 'polka';
 import { raw } from '@polka/parse';
@@ -144,7 +144,7 @@ new WebSocket.Server({ server }).on('connection', (socket, req) => {
 });
 
 /**
- * @param {IncomingHttpHeaders} headers
+ * @param {import('node:http').IncomingHttpHeaders} headers
  * @returns {string}
  */
 function getSubdomain(headers) {
