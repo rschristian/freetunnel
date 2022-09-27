@@ -29,7 +29,7 @@ let currentFreeSubdomainCount = 0;
 polka({ server })
     .use(raw({ type: '/' }))
     .all('/*', (req, res) => {
-        const subdomain = getSubdomain(req);
+        const subdomain = getSubdomain(req.headers);
         const generated = uid();
         if (socketMap[subdomain]) {
             const responder = ({ data }) => {
