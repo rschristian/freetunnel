@@ -1,45 +1,16 @@
 {
-  "name": "@rschristian/freetunnel",
-  "version": "0.2.1",
-  "bin": "src/bin.js",
-  "type": "module",
-  "license": "MIT",
-  "author": "Hristo Dimitrov",
+  "private": true,
   "description": "Create secure introspectable tunnels to your local device",
-  "repository": "https://github.com/rschristian/freetunnel",
-  "keywords": [
-    "tunnel",
-    "webhook",
-    "secure",
-    "URL",
-    "access"
-  ],
-  "files": [
-    "src",
-    "package.json",
-    "LICENSE",
-    "README.md"
-  ],
   "scripts": {
-    "serve:dev": "chokidar 'src/*.js' 'src/views/*.ejs' --initial -c 'yarn serve:prod'",
-    "serve:prod": "node src/bin.js",
     "format": "prettier --write --ignore-path .gitignore ."
   },
-  "dependencies": {
-    "kleur": "^4.1.4",
-    "polka": "^1.0.0-next.11",
-    "polka-ejs": "^1.0.0",
-    "sade": "^1.8.1",
-    "ws": "^7.4.3"
-  },
   "devDependencies": {
-    "@types/node": "^16.11.6",
-    "@types/sade": "^1.7.3",
-    "@types/ws": "^7.4.3",
-    "chokidar-cli": "^3.0.0",
     "prettier": "^2.6.2",
     "prettier-config-rschristian": "^0.1.1",
     "typescript": "^4.6.4"
   },
-  "prettier": "prettier-config-rschristian"
+  "prettier": "prettier-config-rschristian",
+  "workspaces": [
+    "packages/*"
+  ]
 }

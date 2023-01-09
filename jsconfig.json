@@ -8,5 +8,5 @@
     "noEmit": true,
     "resolveJsonModule": true
   },
-  "include": ["src/**/*", "global.d.ts", "packages/**/*"]
+  "include": ["global.d.ts", "packages/**/*"]
 }
