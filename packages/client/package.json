@@ -1,16 +1,16 @@
 {
   "name": "@rschristian/freetunnel",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "bin": "src/bin.js",
   "type": "module",
   "license": "MIT",
   "author": "Ryan Christian <rchristian@ryanchristian.dev>",
   "description": "Create secure introspectable tunnels to your local device",
   "repository": {
-		"type": "git",
-		"url": "https://github.com/rschristian/freetunnel",
-		"directory": "packages/client"
-	},
+    "type": "git",
+    "url": "https://github.com/rschristian/freetunnel",
+    "directory": "packages/client"
+  },
   "keywords": [
     "tunnel",
     "webhook",
