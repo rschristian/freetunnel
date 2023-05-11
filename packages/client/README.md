@@ -33,7 +33,7 @@ To begin using Freetunnel immediately, run:
 $ npx @rschristian/freetunnel
 ```
 
-This will connnect `http://localhost:3000` on your local machine to `https://foo.freetunnel.ryanchristian.dev`.
+This will connect `http://localhost:3000` on your local machine to `https://foo.freetunnel.ryanchristian.dev`.
 
 ## All CLI Options <a name="options"></a>
 
