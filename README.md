@@ -26,13 +26,13 @@ Freetunnel comes as two pieces of software: a CLI client and a server. You can u
 
 ## Quickstart
 
-To being using Freetunnel immediately, run the following on your machine:
+To begin using Freetunnel immediately, run:
 
 ```sh
 $ npx @rschristian/freetunnel
 ```
 
-This will connnect your `http://localhost:3000` to `https://foo.freetunnel.ryanchristian.dev`.
+This will connnect your `http://localhost:3000` on your local machine to `https://foo.freetunnel.ryanchristian.dev`.
 
 ## Usage
 
