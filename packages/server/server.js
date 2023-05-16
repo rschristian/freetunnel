@@ -14,6 +14,10 @@ const socketMap = {};
 
 polka({ server })
     .use(raw({ type: '/' }))
+    .get('/health-check', (req, res) => {
+        res.writeHead(200);
+        res.end();
+    })
     .all('/*', (req, res) => {
         const subdomain = getSubdomain(req.headers);
         const requestId = uid();
