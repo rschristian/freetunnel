@@ -9,5 +9,8 @@
     "polka": "^1.0.0-next.11",
     "uid": "^2.0.0",
     "ws": "^7.4.3"
+  },
+  "devDependencies": {
+    "@types/ws": "^7.4.3"
   }
 }
