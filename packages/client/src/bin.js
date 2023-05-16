@@ -16,10 +16,8 @@ sade('freetunnel', true)
     .option('-H, --host', 'Hostname to bind', 'localhost')
     .option('-p, --port', 'Port to bind', 3000)
     .option('-w, --web-port', 'Web Port to bind for introspection', 4040)
-    .option('-P, --password', 'Password to use for the remote', undefined)
     .example('-s rschristian -r freetunnel.example.com')
     .example('-s foobar -r tunnel.foo.uk -p 6000')
-    .example('-s api -P password123')
     .action((opts) => {
         opts = validateOptions(opts);
         tunnel(opts);

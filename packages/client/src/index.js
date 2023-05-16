@@ -61,36 +61,36 @@ export default function tunnel(opts) {
     });
 
     sendMessage(ws, {
-        event: 'auth',
-        body: { subdomain: opts.subdomain, password: opts.password },
+        event: 'init',
+        body: { subdomain: opts.subdomain },
     });
-    ws.on('message', (message) => {
-        const socketMessage = JSON.parse(message.toString());
 
-        switch (socketMessage.event) {
-            case 'authSuccess':
-                terminalWrite(opts, true);
-                break;
-            case 'authFailure':
-                process.stdout.write(red(`Authentication failed due to ${socketMessage.message}`));
-                process.exit(1);
-            case 'resource':
-                sendPage(socketMessage.body);
-                break;
-            case 'hmr':
-                new WebSocket(
-                    `ws://${opts.host}:${opts.port}${socketMessage.body.url}`,
-                    socketMessage.body.headers,
-                ).on('message', (message) =>
-                    sendMessage(ws, {
-                        event: 'hmrUpdate',
-                        body: { subdomain: opts.subdomain, message },
-                    }),
-                );
-                break;
-            case 'error':
-                process.stdout.write(red(`Unknown error: ${socketMessage.message}`));
-                break;
+    ws.on('message', (message) => {
+        const { event, ...data } = JSON.parse(message.toString());
+
+        if (event === 'initSuccess') {
+            terminalWrite(opts, true);
+        }
+
+        if (event === 'initFailure') {
+            process.stdout.write(red(`Initialization failed due to ${data.message}`));
+            process.exit(1);
+        }
+
+        if (event === 'resource') {
+            sendPage(data.body);
+        }
+
+        if (event === 'hmr') {
+            new WebSocket(
+                `ws://${opts.host}:${opts.port}${data.body.url}`,
+                data.body.headers,
+            ).on('message', (message) =>
+                sendMessage(ws, {
+                    event: 'hmrUpdate',
+                    body: { subdomain: opts.subdomain, message },
+                }),
+            );
         }
     });
 }
@@ -106,8 +106,8 @@ function terminalWrite(opts, authenticated) {
     // prettier-ignore
     process.stdout.write(
         (authenticated
-                ? green('Status                 Authenticated\n')
-                : red('Status                 Unauthenticated\n')
+                ? green('Status                 Initialized\n')
+                : red('Status                 Uninitializeded\n')
         ) +
         white(
             `Web Interface          http://127.0.0.1:${opts.webPort}\n` +

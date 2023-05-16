@@ -5,38 +5,25 @@ import { raw } from '@polka/parse';
 import WebSocket from 'ws';
 import { uid } from 'uid';
 
-/**
- * @param {string} envVar
- * @param {number} defaultValue
- * @returns {number}
- */
-function parseIntEnvVar(envVar, defaultValue) {
-    const parsed = parseInt(process.env[envVar], 10);
-
-    return process.env[envVar] && !isNaN(parsed) ? parsed : defaultValue;
-}
-
 const FREETUNNEL_PORT = parseIntEnvVar('FREETUNNEL_PORT', 3000);
 
-const FREETUNNEL_PASSWORD = process.env.FREETUNNEL_PASSWORD;
-
-const FREETUNNEL_MAX_FREE_SUBDOMAINS = parseIntEnvVar('FREETUNNEL_MAX_FREE_SUBDOMAINS', 5);
+const FREETUNNEL_MAX_SUBDOMAINS = parseIntEnvVar('FREETUNNEL_MAX_SUBDOMAINS', 3);
 
 const server = createServer();
 const socketMap = {};
-let currentFreeSubdomainCount = 0;
 
 polka({ server })
     .use(raw({ type: '/' }))
     .all('/*', (req, res) => {
         const subdomain = getSubdomain(req.headers);
-        const generated = uid();
+        const requestId = uid();
+
         if (socketMap[subdomain]) {
             const responder = ({ data }) => {
                 const socketMessage = JSON.parse(data);
                 const resource = socketMessage.body;
 
-                if (socketMessage.event === generated) {
+                if (socketMessage.event === requestId) {
                     res.writeHead(resource.status, resource.headers);
                     if (resource.body) {
                         res.write(Buffer.from(resource.body), 'binary');
@@ -45,6 +32,7 @@ polka({ server })
                     socketMap[subdomain].clientSocket.removeEventListener('message', responder);
                 }
             };
+
             socketMap[subdomain].clientSocket.addEventListener('message', responder);
             sendMessage(socketMap[subdomain].clientSocket, {
                 event: 'resource',
@@ -53,11 +41,11 @@ polka({ server })
                     headers: req.headers,
                     body: req.body,
                     method: req.method,
-                    uuid: generated,
+                    uuid: requestId,
                 },
             });
         } else {
-            res.end('Unknown Error');
+            res.end('Subdomain has not been registered');
         }
     })
     .listen(FREETUNNEL_PORT, (err) => {
@@ -66,6 +54,7 @@ polka({ server })
     });
 
 new WebSocket.Server({ server }).on('connection', (socket, req) => {
+    // Differentiates freetunnel client from (say) a browser ws connection
     if (req.headers.origin) {
         const subdomain = getSubdomain(req.headers);
         if (socketMap[subdomain]) {
@@ -80,50 +69,30 @@ new WebSocket.Server({ server }).on('connection', (socket, req) => {
             });
         }
     }
+
     socket.on('message', (message) => {
-        const socketMessage = JSON.parse(message.toString());
+        const { event, body } = JSON.parse(message.toString());
 
-        switch (socketMessage.event) {
-            case 'auth': {
-                const { password, subdomain } = socketMessage.body;
-
-                let freeSubdomain = false;
-                if (password && FREETUNNEL_PASSWORD !== password) {
-                    sendMessage(socket, {
-                        event: 'authFailure',
-                        message: 'provided password being incorrect',
-                    });
-                    return;
-                } else if (!password) {
-                    if (currentFreeSubdomainCount === FREETUNNEL_MAX_FREE_SUBDOMAINS) {
-                        sendMessage(socket, {
-                            event: 'authFailure',
-                            message: 'all unauthorized subdomains being already in use',
-                        });
-                        return;
-                    }
-                    currentFreeSubdomainCount++;
-                    freeSubdomain = true;
-                }
-                if (socketMap[subdomain]) {
-                    sendMessage(socket, {
-                        event: 'authFailure',
-                        message: 'subdomain being already in use',
-                    });
-                    return;
-                }
-                sendMessage(socket, { event: 'authSuccess' });
-                socketMap[subdomain] = {
-                    clientSocket: socket,
-                    freeSubdomain,
-                };
-                break;
+        if (event === 'init') {
+            if (Object.keys(socketMap).length === FREETUNNEL_MAX_SUBDOMAINS) {
+                sendMessage(socket, {
+                    event: 'initFailure',
+                    message: 'all subdomains being already in use',
+                });
+            } else if (socketMap[body.subdomain]) {
+                sendMessage(socket, {
+                    event: 'initFailure',
+                    message: 'subdomain being already in use',
+                });
             }
-            case 'hmrUpdate': {
-                for (const socket of socketMap[socketMessage.body.subdomain].browserSocket) {
-                    socket.send(socketMessage.body.message);
-                }
-                break;
+
+            sendMessage(socket, { event: 'initSuccess' });
+            socketMap[body.subdomain] = { clientSocket: socket };
+        }
+
+        if (event === 'hmrUpdate') {
+            for (const socket of socketMap[body.subdomain].browserSocket) {
+                socket.send(body.message);
             }
         }
     });
@@ -135,13 +104,23 @@ new WebSocket.Server({ server }).on('connection', (socket, req) => {
                 if (index > -1) value.browserSocket.splice(index, 1);
                 break;
             } else if (value.clientSocket === socket) {
-                if (value.freeSubdomain) currentFreeSubdomainCount--;
                 delete socketMap[key];
                 break;
             }
         }
     });
 });
+
+/**
+ * @param {string} envVar
+ * @param {number} defaultValue
+ * @returns {number}
+ */
+function parseIntEnvVar(envVar, defaultValue) {
+    const parsed = parseInt(process.env[envVar], 10);
+
+    return process.env[envVar] && !isNaN(parsed) ? parsed : defaultValue;
+}
 
 /**
  * @param {import('node:http').IncomingHttpHeaders} headers
