@@ -19,6 +19,7 @@ polka({ server })
         res.end();
     })
     .all('/*', (req, res) => {
+        console.log(req.headers);
         const subdomain = getSubdomain(req.headers);
         const requestId = uid();
 
