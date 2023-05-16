@@ -8,7 +8,7 @@
   <body>
       <h1>Freetunnel</h1>
       <ul>
-          <% requests.forEach((request, index) => { %>
+          <% history.forEach((request, index) => { %>
               <li>
                   <a href="/view/<%=index%>"><%=`${request.method} - ${request.url} - ${request.time}`%></a>
                   <form method="post" action="/view/<%=index%>">
