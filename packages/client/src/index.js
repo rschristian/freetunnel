@@ -12,7 +12,7 @@ import localServer from './server.js';
 export default function tunnel(opts) {
     const ws = new WebSocket(`wss://${opts.subdomain}.${opts.remote}`);
 
-    const requests = [];
+    const history = [];
 
     /** @param {FreetunnelResponse} resource **/
     const sendPage = (resource) => {
@@ -20,7 +20,7 @@ export default function tunnel(opts) {
 
         resource.time = new Date();
 
-        requests.push(resource);
+        history.push(resource);
         const req = request(
             {
                 host: opts.host,
@@ -55,7 +55,7 @@ export default function tunnel(opts) {
         req.end();
     };
 
-    localServer(requests, sendPage).listen(opts.webPort, (err) => {
+    localServer(history, sendPage).listen(opts.webPort, (err) => {
         if (err) throw err;
         terminalWrite(opts, false);
     });
