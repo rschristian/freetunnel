@@ -19,6 +19,11 @@ polka({ server })
         res.end();
     })
     .all('/*', (req, res) => {
+        if (req.headers.host.split('.').length < 3) {
+            res.end('I might put a docs page here one day, but for now, please go to https://github.com/rschristian/freetunnel');
+            return;
+        }
+
         const subdomain = getSubdomain(req.headers);
         const requestId = uid();
 
@@ -131,8 +136,7 @@ function parseIntEnvVar(envVar, defaultValue) {
  * @returns {string}
  */
 function getSubdomain(headers) {
-    // @ts-ignore
-    return headers['x-forwarded-host'].split('.')[0];
+    return headers.host.split('.')[0];
 }
 
 function sendMessage(socket, message) {
