@@ -11,7 +11,7 @@ const pkg = JSON.parse(await fs.readFile('./package.json', 'utf-8'));
 sade('freetunnel', true)
     .version(pkg.version)
     .describe('Create secure introspectable tunnels to your local device with a single command')
-    .option('-s, --subdomain', 'Subdomain to use on remote', 'foo')
+    .option('-s, --subdomain', 'Subdomain to use on remote', 'my-app')
     .option('-r, --remote', 'Remote server to run on', 'rchristian.dev')
     .option('-H, --host', 'Hostname to bind', 'localhost')
     .option('-p, --port', 'Port to bind', 3000)

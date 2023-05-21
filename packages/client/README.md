@@ -33,7 +33,7 @@ To begin using Freetunnel immediately, run:
 $ npx @rschristian/freetunnel
 ```
 
-This will connect `http://localhost:3000` on your local machine to `https://foo.rchristian.dev`.
+This will connect `http://localhost:3000` on your local machine to `https://my-app.rchristian.dev`.
 
 ## All CLI Options <a name="options"></a>
 
@@ -42,7 +42,7 @@ Usage
     $ freetunnel [options]
 
 Options
-    -s, --subdomain    Subdomain to use on remote  (default foo)
+    -s, --subdomain    Subdomain to use on remote  (default my-app)
     -r, --remote       Remote server to run on  (default rchristian.dev)
     -H, --host         Hostname to bind  (default localhost)
     -p, --port         Port to bind  (default 3000)
