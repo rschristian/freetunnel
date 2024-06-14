@@ -107,7 +107,7 @@ function terminalWrite(opts, authenticated) {
     process.stdout.write(
         (authenticated
                 ? green('Status                 Initialized\n')
-                : red('Status                 Uninitializeded\n')
+                : red('Status                 Uninitialized\n')
         ) +
         white(
             `Web Interface          http://127.0.0.1:${opts.webPort}\n` +
