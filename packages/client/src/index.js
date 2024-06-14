@@ -84,6 +84,7 @@ export default function tunnel(opts) {
         if (event === 'hmr') {
             new WebSocket(
                 `ws://${opts.host}:${opts.port}${data.body.url}`,
+                data.body.headers['sec-websocket-protocol'],
                 data.body.headers,
             ).on('message', (message) =>
                 sendMessage(ws, {
