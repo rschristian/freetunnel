@@ -24,6 +24,8 @@ Freetunnel is a tool for creating tunnels from your local development machine to
 
 Freetunnel comes as two pieces of software: a CLI client and a server. You can use the CLI to connect to a server host, making your local device publicly accessible, and the server _can_ be ran if you want your own, configurable instance of Freetunnel. While I host an instance at [https://rchristian.dev](https://rchristian.dev), you may not want to use that URL, and slots are limited. To ensure my infrastructure is never too burdened, there can only be 3 sites using that instance at one time.
 
+> Note: That instance also has pretty poor startup times (~50s, at worst), so just a heads up.
+
 ## Quickstart
 
 To begin using Freetunnel immediately, run:
