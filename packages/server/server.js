@@ -2,7 +2,7 @@ import { createServer } from 'node:http';
 
 import polka from 'polka';
 import { raw } from '@polka/parse';
-import WebSocket from 'ws';
+import { WebSocketServer } from 'ws';
 import { uid } from 'uid';
 
 const FREETUNNEL_PORT = parseIntEnvVar('FREETUNNEL_PORT', 3000);
@@ -63,7 +63,7 @@ polka({ server })
         console.log(`> Running on localhost:${FREETUNNEL_PORT}`);
     });
 
-new WebSocket.Server({ server }).on('connection', (socket, req) => {
+new WebSocketServer({ server }).on('connection', (socket, req) => {
     // Differentiates freetunnel client from (say) a browser ws connection
     if (req.headers.origin) {
         console.log('browser', req.headers.origin);

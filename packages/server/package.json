@@ -8,9 +8,9 @@
     "@polka/parse": "^1.0.0-next.21",
     "polka": "^1.0.0-next.11",
     "uid": "^2.0.0",
-    "ws": "^7.4.3"
+    "ws": "^8.17.0"
   },
   "devDependencies": {
-    "@types/ws": "^7.4.3"
+    "@types/ws": "^8.5.10"
   }
 }
