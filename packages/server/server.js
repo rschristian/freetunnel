@@ -65,6 +65,7 @@ polka({ server })
 new WebSocket.Server({ server }).on('connection', (socket, req) => {
     // Differentiates freetunnel client from (say) a browser ws connection
     if (req.headers.origin) {
+        console.log('browser', req.headers.origin);
         const subdomain = getSubdomain(req.headers);
         if (socketMap[subdomain]) {
             if (!socketMap[subdomain].browserSocket) socketMap[subdomain].browserSocket = [];
@@ -83,18 +84,22 @@ new WebSocket.Server({ server }).on('connection', (socket, req) => {
         const { event, body } = JSON.parse(message.toString());
 
         if (event === 'init') {
+            console.log('init', body.subdomain)
             if (Object.keys(socketMap).length === FREETUNNEL_MAX_SUBDOMAINS) {
+                console.log('initFailure', body.subdomain, 'all subdomains being already in use');
                 sendMessage(socket, {
                     event: 'initFailure',
                     message: 'all subdomains being already in use',
                 });
             } else if (socketMap[body.subdomain]) {
+                console.log('initFailure', body.subdomain, 'subdomain being already in use');
                 sendMessage(socket, {
                     event: 'initFailure',
                     message: 'subdomain being already in use',
                 });
             }
 
+            console.log('initSuccess', body.subdomain);
             sendMessage(socket, { event: 'initSuccess' });
             socketMap[body.subdomain] = { clientSocket: socket };
         }
