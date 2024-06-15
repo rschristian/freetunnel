@@ -10,6 +10,7 @@ const FREETUNNEL_PORT = parseIntEnvVar('FREETUNNEL_PORT', 3000);
 const FREETUNNEL_MAX_SUBDOMAINS = parseIntEnvVar('FREETUNNEL_MAX_SUBDOMAINS', 3);
 
 const server = createServer();
+/** @type {import('./index.d.ts').SocketMap} */
 const socketMap = {};
 
 polka({ server })
