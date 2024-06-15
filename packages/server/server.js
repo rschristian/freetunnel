@@ -12,6 +12,7 @@ const FREETUNNEL_MAX_SUBDOMAINS = parseIntEnvVar('FREETUNNEL_MAX_SUBDOMAINS', 3)
 const server = createServer();
 /** @type {import('./index.d.ts').SocketMap} */
 const socketMap = {};
+const responseMap = {};
 
 polka({ server })
     .use(raw({ type: '/' }))
@@ -29,24 +30,11 @@ polka({ server })
     })
     .all('/*', (req, res) => {
         const subdomain = getSubdomain(req.headers);
-        const requestId = uid();
 
         if (socketMap[subdomain]) {
-            const responder = ({ data }) => {
-                const socketMessage = JSON.parse(data);
-                const resource = socketMessage.body;
+            const requestId = uid();
+            responseMap[requestId] = res;
 
-                if (socketMessage.event === requestId) {
-                    res.writeHead(resource.status, resource.headers);
-                    if (resource.body) {
-                        res.write(Buffer.from(resource.body), 'binary');
-                    }
-                    res.end();
-                    socketMap[subdomain].clientSocket.removeEventListener('message', responder);
-                }
-            };
-
-            socketMap[subdomain].clientSocket.addEventListener('message', responder);
             sendMessage(socketMap[subdomain].clientSocket, {
                 event: 'resource',
                 body: {
@@ -108,6 +96,17 @@ new WebSocketServer({ server }).on('connection', (socket, req) => {
             for (const socket of socketMap[body.subdomain].browserSockets) {
                 socket.send(body.message);
             }
+        }
+
+        const res = responseMap[event];
+        if (res) {
+            const resource = body;
+            res.writeHead(resource.status, resource.headers);
+            if (body) {
+                res.write(Buffer.from(resource.body), 'binary');
+            }
+            res.end();
+            delete responseMap[event];
         }
     });
 
