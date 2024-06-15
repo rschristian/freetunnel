@@ -15,16 +15,19 @@ const socketMap = {};
 
 polka({ server })
     .use(raw({ type: '/' }))
-    .get('/health-check', (req, res) => {
-        res.writeHead(200);
-        res.end();
-    })
-    .all('/*', (req, res) => {
+    .get('/', (req, res, next) => {
         if (req.headers.host.split('.').length < 3) {
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
             res.end('I might put a docs page here one day, but for now, please go to https://github.com/rschristian/freetunnel');
             return;
         }
-
+        next();
+    })
+    .get('/health-check', (_req, res) => {
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
+        res.end('All Healthy!');
+    })
+    .all('/*', (req, res) => {
         const subdomain = getSubdomain(req.headers);
         const requestId = uid();
 
@@ -55,6 +58,7 @@ polka({ server })
                 },
             });
         } else {
+            res.writeHead(404, { 'Content-Type': 'text/plain' });
             res.end('Subdomain has not been registered');
         }
     })
