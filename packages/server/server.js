@@ -100,11 +100,9 @@ new WebSocketServer({ server }).on('connection', (socket, req) => {
 
         const res = responseMap[event];
         if (res) {
-            const resource = body;
-            res.writeHead(resource.status, resource.headers);
-            if (body) {
-                res.write(Buffer.from(resource.body), 'binary');
-            }
+            const { body, status, headers } = body;
+            res.writeHead(status, headers);
+            if (body) res.write(Buffer.from(body), 'binary');
             res.end();
             delete responseMap[event];
         }
