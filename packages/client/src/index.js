@@ -60,9 +60,11 @@ export default function tunnel(opts) {
         terminalWrite(opts, false);
     });
 
-    sendMessage(ws, {
-        event: 'init',
-        body: { subdomain: opts.subdomain },
+    init(ws, opts);
+
+    ws.on('close', () => {
+        terminalWrite(opts, false);
+        init(ws, opts)
     });
 
     ws.on('message', (message) => {
@@ -116,6 +118,13 @@ function terminalWrite(opts, authenticated) {
             `Forwarding             https://${opts.subdomain}.${opts.remote} -> http://${opts.host}:${opts.port}\n\n`
         ),
     );
+}
+
+function init(ws, opts) {
+    sendMessage(ws, {
+        event: 'init',
+        body: { subdomain: opts.subdomain },
+    });
 }
 
 function sendMessage(ws, message) {
