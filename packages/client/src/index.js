@@ -60,11 +60,14 @@ export default function tunnel(opts) {
         terminalWrite(opts, false);
     });
 
-    init(ws, opts);
+    sendMessage(ws, {
+        event: 'init',
+        body: { subdomain: opts.subdomain },
+    });
 
     ws.on('close', () => {
         terminalWrite(opts, false);
-        init(ws, opts)
+        process.exit(1);
     });
 
     ws.on('message', (message) => {
@@ -72,6 +75,9 @@ export default function tunnel(opts) {
 
         if (event === 'initSuccess') {
             terminalWrite(opts, true);
+            // Keeps the server alive, but only for 5m -- Render will restart
+            // the server just to push people to paid plans, sadly.
+            startPing(ws);
         }
 
         if (event === 'initFailure') {
@@ -120,13 +126,6 @@ function terminalWrite(opts, authenticated) {
     );
 }
 
-function init(ws, opts) {
-    sendMessage(ws, {
-        event: 'init',
-        body: { subdomain: opts.subdomain },
-    });
-}
-
 function sendMessage(ws, message) {
     waitForSocketConnection(ws, () => {
         ws.send(JSON.stringify(message));
@@ -141,4 +140,12 @@ function waitForSocketConnection(ws, callback) {
             waitForSocketConnection(ws, callback);
         }
     }, 5);
+}
+
+function startPing(ws) {
+    setInterval(() => {
+        sendMessage(ws, {
+            event: 'ping',
+        });
+    }, 30000);
 }
