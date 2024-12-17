@@ -29,6 +29,7 @@ polka({ server })
         res.end('All Healthy!');
     })
     .all('/*', (req, res) => {
+        console.log(req.headers.host);
         const subdomain = getSubdomain(req.headers);
 
         if (socketMap[subdomain]) {
