@@ -11,6 +11,7 @@ export default function validateOptions(opts) {
     try {
         if (typeof opts.port !== 'number') throw ['port', 'not a number'];
         if (typeof opts.webPort !== 'number') throw ['web-port', 'not a number'];
+        if (/^https?/.test(opts.remote)) throw ['remote', 'must not include scheme'];
     } catch (err) {
         process.stdout.write(red(`\nInvalid option passed to --${err[0]}: ${err[1]}\n\n`));
         process.exit(1);
