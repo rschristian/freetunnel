@@ -97,7 +97,7 @@ export default function tunnel(opts) {
             ).on('message', (message) =>
                 sendMessage(ws, {
                     event: 'hmrUpdate',
-                    body: { subdomain: opts.subdomain, message },
+                    body: { subdomain: opts.subdomain, message: message.toString() },
                 }),
             );
         }
