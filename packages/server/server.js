@@ -5,7 +5,7 @@ import { raw } from '@polka/parse';
 import { WebSocketServer } from 'ws';
 import { uid } from 'uid';
 
-const FREETUNNEL_PORT = parseIntEnvVar('FREETUNNEL_PORT', 3000);
+const FREETUNNEL_PORT = parseIntEnvVar('FREETUNNEL_PORT', 5000);
 
 const FREETUNNEL_MAX_SUBDOMAINS = parseIntEnvVar('FREETUNNEL_MAX_SUBDOMAINS', 3);
 
@@ -17,7 +17,7 @@ const responseMap = {};
 polka({ server })
     .use(raw({ type: '/' }))
     .get('/', (req, res, next) => {
-        if (req.headers.host.split('.').length < 3) {
+        if (req.headers.host.split('.').length < 4) {
             res.writeHead(200, { 'Content-Type': 'text/plain' });
             res.end('I might put a docs page here one day, but for now, please go to https://github.com/rschristian/freetunnel');
             return;

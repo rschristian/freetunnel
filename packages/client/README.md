@@ -23,7 +23,7 @@
 
 Freetunnel is a tool for creating tunnels from your local development machine to a public and secure URL. This allows for easy webhook development, sharing of demo applications across networks, and using tools such as [PageSpeed Insights](https://developers.google.com/speed/pagespeed/insights/) which require public acess.
 
-Freetunnel comes in two parts: a CLI tool and a server. You use the CLI tool to connect to a server host, making your localhost accessible, and the server _can_ be ran if you want your own configurable instance of Freetunnel. While I host an instance at [https://rchristian.dev](https://rchristian.dev), you might not want to use that URL and slots are limited; to ensure my infrastructure is never burdened, there can only be 3 sites using that instance at one time. Additionally, service may go down without warning.
+Freetunnel comes in two parts: a CLI tool and a server. You use the CLI tool to connect to a server host, making your localhost accessible, and the server _can_ be ran if you want your own configurable instance of Freetunnel. While I host an instance at [https://freetunnel.ryanchristian.dev](https://freetunnel.ryanchristian.dev), you might not want to use that URL and slots are limited; to ensure my infrastructure is never burdened, there can only be 3 sites using that instance at one time. Additionally, service may go down without warning.
 
 ## Usage
 
@@ -33,7 +33,7 @@ To begin using Freetunnel immediately, run:
 $ npx @rschristian/freetunnel
 ```
 
-This will connect `http://localhost:3000` on your local machine to `https://my-app.rchristian.dev`.
+This will connect `http://localhost:3000` on your local machine to `https://my-app.freetunnel.ryanchristian.dev`.
 
 ## All CLI Options <a name="options"></a>
 
@@ -43,7 +43,7 @@ Usage
 
 Options
     -s, --subdomain    Subdomain to use on remote  (default my-app)
-    -r, --remote       Remote server to run on  (default rchristian.dev)
+    -r, --remote       Remote server to run on  (default freetunnel.ryanchristian.dev)
     -H, --host         Hostname to bind  (default localhost)
     -p, --port         Port to bind  (default 3000)
     -w, --web-port     Web Port to bind for introspection (default 4040)
@@ -52,7 +52,7 @@ Options
 
 Examples
     $ freetunnel -s rschristian -r freetunnel.example.com        # Connects localhost:3000 -> https://rschristian.freetunnel.example.com
-    $ freetunnel -s foobar -p 6000                               # Connects localhost:6000 -> https://foobar.rchristian.dev
+    $ freetunnel -s foobar -p 6000                               # Connects localhost:6000 -> https://foobar.freetunnel.ryanchristian.dev
 ```
 
 ## Setup Your Own Freetunnel Server  <a name="setup"></a>

@@ -75,9 +75,6 @@ export default function tunnel(opts) {
 
         if (event === 'initSuccess') {
             terminalWrite(opts, true);
-            // Keeps the server alive, but only for 5m -- Render will restart
-            // the server just to push people to paid plans, sadly.
-            startPing(ws);
         }
 
         if (event === 'initFailure') {
@@ -140,12 +137,4 @@ function waitForSocketConnection(ws, callback) {
             waitForSocketConnection(ws, callback);
         }
     }, 5);
-}
-
-function startPing(ws) {
-    setInterval(() => {
-        sendMessage(ws, {
-            event: 'ping',
-        });
-    }, 30000);
 }
