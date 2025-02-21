@@ -63,7 +63,7 @@ new WebSocketServer({ server }).on('connection', (socket, req) => {
             if (!socketMap[subdomain].browserSockets) socketMap[subdomain].browserSockets = [];
             socketMap[subdomain].browserSockets.push(socket);
             sendMessage(socketMap[subdomain].clientSocket, {
-                event: 'hmr',
+                event: 'hmrInit',
                 body: {
                     url: req.url,
                     headers: req.headers,

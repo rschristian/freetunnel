@@ -89,7 +89,7 @@ export default function tunnel(opts) {
             sendPage(data.body);
         }
 
-        if (event === 'hmr') {
+        if (event === 'hmrInit') {
             new WebSocket(
                 `ws://${opts.host}:${opts.port}${data.body.url}`,
                 data.body.headers['sec-websocket-protocol'],
